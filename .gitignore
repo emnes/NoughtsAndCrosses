@@ -1,0 +1,16 @@
+/AbstractClient.class
+/AbstractServer.class
+/Action.class
+/ClientNaCG.class
+/ConnectionToClient.class
+/MessageAction.class
+/MoveAction.class
+/NoughtsAndCrossesGame$Session.class
+/NoughtsAndCrossesGame$SessionEndGame.class
+/NoughtsAndCrossesGame$SessionInGame.class
+/NoughtsAndCrossesGame$SessionNoGame.class
+/NoughtsAndCrossesGame.class
+/Player.class
+/Square$Clickablility.class
+/Square.class
+/Token.class

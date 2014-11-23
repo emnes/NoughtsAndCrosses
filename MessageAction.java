@@ -1,55 +1,46 @@
 import java.sql.Time;
 
-// line 213 "model.ump"
-// line 258 "model.ump"
-public class MessageAction extends Action
-{
 
-  //------------------------
-  // MEMBER VARIABLES
-  //------------------------
+public class MessageAction extends Action {
 
-  //MessageAction Attributes
-  private String message;
+	// ------------------------
+	// MEMBER VARIABLES
+	// ------------------------
 
-  //------------------------
-  // CONSTRUCTOR
-  //------------------------
+	// MessageAction Attributes
+	private String message;
 
-  public MessageAction(Time aTime, String aMessage)
-  {
-    super(aTime);
-    message = aMessage;
-  }
+	// ------------------------
+	// CONSTRUCTOR
+	// ------------------------
 
-  //------------------------
-  // INTERFACE
-  //------------------------
+	public MessageAction(Time aTime, String aMessage) {
+		super(aTime);
+		message = aMessage;
+	}
 
-  public boolean setMessage(String aMessage)
-  {
-    boolean wasSet = false;
-    message = aMessage;
-    wasSet = true;
-    return wasSet;
-  }
+	// ------------------------
+	// INTERFACE
+	// ------------------------
 
-  public String getMessage()
-  {
-    return message;
-  }
+	public boolean setMessage(String aMessage) {
+		boolean wasSet = false;
+		message = aMessage;
+		wasSet = true;
+		return wasSet;
+	}
 
-  public void delete()
-  {
-    super.delete();
-  }
+	public String getMessage() {
+		return message;
+	}
 
+	public void delete() {
+		super.delete();
+	}
 
-  public String toString()
-  {
-	  String outputString = "";
-    return super.toString() + "["+
-            "message" + ":" + getMessage()+ "]"
-     + outputString;
-  }
+	public String toString() {
+		String outputString = "";
+		return super.toString() + "[" + "message" + ":" + getMessage() + "]"
+				+ outputString;
+	}
 }

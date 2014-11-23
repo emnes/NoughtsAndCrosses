@@ -1,17 +1,8 @@
-import javafx.scene.image.Image;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
+@SuppressWarnings("serial")
 public class Square extends JButton {
-	
-	public static String getUnclickableImageURL() {
-		return "data\\unclickable.png";
-	}
-	
-	public static String getClickableImageURL() {
-		return "data\\clickable.png";
-	}
 
 	// ------------------------
 	// MEMBER VARIABLES
@@ -158,16 +149,15 @@ public class Square extends JButton {
 		// entry actions and do activities
 		switch (clickablility) {
 		case Clickable:
-			// line 120 "model.ump"
+			// line 285 "model.ump"
 			setClickableImage();
-			setToken(null);
 			break;
 		case NotClickable:
-			// line 125 "model.ump"
+			// line 290 "model.ump"
 			setNotClickableImage();
 			break;
 		case Clicked:
-			// line 130 "model.ump"
+			// line 295 "model.ump"
 			setClickedImage();
 			break;
 		}
@@ -186,16 +176,9 @@ public class Square extends JButton {
 		return noughtsAndCrossesGame;
 	}
 
-	public boolean setToken(Token aToken) {
+	public boolean setToken(Token aNewToken) {
 		boolean wasSet = false;
-		Token existingToken = token;
-		token = aToken;
-		if (existingToken != null && !existingToken.equals(aToken)) {
-			existingToken.removeSquare(this);
-		}
-		if (aToken != null) {
-			aToken.addSquare(this);
-		}
+		token = aNewToken;
 		wasSet = true;
 		return wasSet;
 	}
@@ -232,62 +215,47 @@ public class Square extends JButton {
 	}
 
 	public void delete() {
-		if (token != null) {
-			Token placeholderToken = token;
-			this.token = null;
-			placeholderToken.removeSquare(this);
-		}
+		token = null;
 		NoughtsAndCrossesGame placeholderNoughtsAndCrossesGame = noughtsAndCrossesGame;
 		this.noughtsAndCrossesGame = null;
 		placeholderNoughtsAndCrossesGame.removeSquare(this);
 	}
 
-	// line 136 "model.ump"
+	// line 271 "model.ump"
+	public static String getUnclickableImageURL() {
+		return "data\\unclickable.png";
+	}
+
+	// line 275 "model.ump"
+	public static String getClickableImageURL() {
+		return "data\\clickable.png";
+	}
+
+	// line 301 "model.ump"
 	public boolean changeImage(String imageURL) {
-		boolean wasSet = false;
-		
 		try {
-			ImageIcon img = new ImageIcon(Square.class.getResource(imageURL));
-			this.setIcon(img);
-			wasSet = true;
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			this.setIcon(new ImageIcon(Square.class.getResource(imageURL)));
+
+			return true;
+		} catch (Exception ioe) {
+			System.out.println("Image not found: " + imageURL);
+			return false;
 		}
-		
-		return wasSet;
 	}
 
-	// line 142 "model.ump"
+	// line 307 "model.ump"
 	public boolean setClickedImage() {
-		boolean wasSet = false;
-		if (getToken() != null) {
-			changeImage(getToken().getImageUrl());
-			wasSet = true;
-		}
-		
-		return wasSet;
+		return changeImage(getToken().getImageUrl());
 	}
 
-	// line 148 "model.ump"
+	// line 313 "model.ump"
 	public boolean setClickableImage() {
-		boolean wasSet = false;
-		if (getClickablility() == Clickablility.Clickable) {
-			changeImage(getClickableImageURL());
-			wasSet = true;
-		}
-		
-		return wasSet;
+		return changeImage(getClickableImageURL());
 	}
 
-	// line 154 "model.ump"
+	// line 319 "model.ump"
 	public boolean setNotClickableImage() {
-		boolean wasSet = false;
-		if (getClickablility() == Clickablility.NotClickable) {
-			changeImage(getUnclickableImageURL());
-			wasSet = true;
-		}
-		
-		return wasSet;
+		return changeImage(getUnclickableImageURL());
 	}
 
 	public String toString() {

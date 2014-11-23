@@ -1,8 +1,8 @@
 import java.util.*;
 
-// line 165 "model.ump"
-// line 233 "model.ump"
-public abstract class Player {
+// line 335 "model.ump"
+// line 394 "model.ump"
+public class Player {
 
 	// ------------------------
 	// MEMBER VARIABLES
@@ -34,7 +34,6 @@ public abstract class Player {
 		draws = aDraws;
 		expLvl = null;
 		actions = new ArrayList<Action>();
-		determineExperienceLevel();
 	}
 
 	// ------------------------
@@ -184,12 +183,6 @@ public abstract class Player {
 		if (actions.contains(aAction)) {
 			return false;
 		}
-		if (actions.contains(aAction)) {
-			return false;
-		}
-		if (actions.contains(aAction)) {
-			return false;
-		}
 		actions.add(aAction);
 		wasAdded = true;
 		return wasAdded;
@@ -247,7 +240,7 @@ public abstract class Player {
 		actions.clear();
 	}
 
-	// line 178 "model.ump"
+	// line 347 "model.ump"
 	public void determineExperienceLevel() {
 		double ratio;
 		if (losses + draws != 0)
@@ -262,6 +255,14 @@ public abstract class Player {
 		} else {
 			setExpLvl("Expert");
 		}
+	}
+	
+	public boolean equals(Object o) {
+		if (o instanceof Player) {
+			Player temp = (Player) o;
+			return temp.playerId == this.playerId;
+		}
+		return false;
 	}
 
 	public String toString() {

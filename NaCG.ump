@@ -1,0 +1,392 @@
+class NoughtsAndCrossesGame {
+  singleton;
+  lazy connectionIP;
+  lazy int portNumber;
+  
+  1 -- 0..9 Square;
+  lazy Player localPlayer;
+  lazy Player remotePlayer;
+  
+  Session {
+    NoGame {
+      entry/{
+        lockSquares();
+        setRemotePlayer(null);
+      }
+      Idle {
+        entry/{
+          updateDisplay();
+        }
+        startSearch() -> Searching;
+      }
+      Searching {
+        entry/{
+          updateDisplay();
+        }
+        stopSearch() -> Idle;
+        playerConnected -> NoTurn;
+      }      
+    }
+    InGame {
+      entry /{
+        resetSquares();
+        updateStats();
+        updateDisplay();
+      }
+
+      localQuit -> /{setLocalLoss();} Idle;
+      remoteQuit -> /{setLocalWin();} Idle;
+      
+      NoTurn {
+        startTurn [localStarts] -> LocalTurn;
+        startTurn [!localStarts] -> RemoteTurn;
+      }
+      LocalTurn {
+        entry/{unlockSquares();}
+        localActed [!isGameOver && isFreeSquare] -> RemoteTurn;
+        localActed [!isGameOver && !isFreeSquare] -> Draw;
+        localActed [isGameOver] -> LocalWin;
+      }
+      RemoteTurn {
+        entry/{lockSquares();}
+        remoteActed [!isGameOver && isFreeSquare] -> LocalTurn;
+        remoteActed [!isGameOver && !isFreeSquare] -> Draw;
+        remoteActed [isGameOver] -> RemoteWin;
+      }
+      
+    }
+    EndGame {
+      entry /{
+        lockSquares();
+        updateDisplay();
+      }
+      
+      rematch -> NoTurn;
+      localQuit -> Idle;
+      remoteQuit -> Idle;
+      
+      LocalWin {
+        entry /{
+          setLocalWin();
+        }
+      }
+      RemoteWin {
+        entry /{
+          setLocalLoss();
+        }
+      }
+      Draw {
+        entry /{
+          setLocalDraw();
+        }
+      }
+    }
+  }
+  
+  
+  
+  public boolean removeSquares() {
+    boolean wasRemoved = false;
+    
+    while (numberOfSquares() != 0) {
+      removeSquare(getSquare(0));
+    }
+    
+    wasRemoved = numberOfSquares() != 0;
+    
+    return wasRemoved;
+  }
+  
+  
+  void startUp() {
+    mainBoard = new JPanel();
+    add(mainBoard);
+    
+    board = new JPanel();
+    board.setLayout(new GridLayout(3,3));
+    mainBoard.add(board, BorderLayout.WEST);
+    
+    generateSquares();
+    
+    scoreBoard = new JPanel();
+    scoreBoard.setLayout(new GridLayout(2,1));
+    mainBoard.add(scoreBoard, BorderLayout.EAST);
+    
+    control = new JPanel();
+    control.setLayout(new GridLayout(1,3));
+    mainBoard.add(control, BorderLayout.SOUTH);
+    
+    
+    control1 = new JButton();
+    control2 = new JButton();
+    quitButton = new JButton();
+    control1.addActionListener(this);
+    control2.addActionListener(this);
+    quitButton.addActionListener(this);
+    control.add(control1);
+    control.add(control2);
+    control.add(quitButton);
+    control1.setText("Find Player");
+    control2.setText("Reset");
+    quitButton.setText("Quit");
+    
+    pack();
+  }
+  
+  void generateSquares() {
+    board.removeAll();
+    board.setLayout(new GridLayout(3,3));
+    
+    removeSquares();
+    
+    for (int y = 1; y <= 3; y++) {
+      for (int x = 1; x <= 3; x++) {
+        Square temp = addSquare(x, y);
+        board.add(temp);
+      }
+    }
+    
+    lockSquares();
+  }
+  
+  boolean unlockSquares() {
+    for (int i = 0; i < numberOfSquares(); i++) {
+      getSquare(i).unlock();
+    }
+    
+    return true;
+  }
+  
+  boolean lockSquares() {
+    for (int i = 0; i < numberOfSquares(); i++) {
+      getSquare(i).lock();
+    }
+    
+    return true;
+  }
+  
+  boolean resetSquares() {
+    for (int i = 0; i < numberOfSquares(); i++) {
+      getSquare(i).reset();
+    }
+    
+    return true;
+  }
+  
+  boolean isGameOver() {
+    boolean over = false;
+    Player p;
+    if (getSessionInGameTurn() == SessionInGameTurn.Local) {
+        p = getLocalPlayer();
+    } else {
+        p = getRemotePlayer();
+    }
+    
+    over = playerTriple(0, 1, 2, p);
+    if (!over) over = playerTriple(3,4,5,p);
+    if (!over) over = playerTriple(6,7,8,p);
+    if (!over) over = playerTriple(0,3,6,p);
+    if (!over) over = playerTriple(1,4,7,p);
+    if (!over) over = playerTriple(2,5,8,p);
+    if (!over) over = playerTriple(0,4,8,p);
+    if (!over) over = playerTriple(2,4,6,p);
+    
+    if (getSessionInGameTurn() == SessionInGameTurn.Local) {
+        if (over) System.out.println("Local has Won!!");
+    } else {
+        if (over) System.out.println("Remote has Won!!");
+    }
+    
+    return over;
+  }
+  
+  private boolean playerTriple(int a, int b, int c, Player p) {
+    return playerSquare(a, p) && playerSquare(b, p) && playerSquare(c, p);
+  }
+
+  private boolean playerSquare(int index, Player p) {
+    if (getSquare(index) != null) {
+      if (getSquare(index).getToken() != null) {
+        if (getSquare(index).getToken().getImageUrl().equals(p.getToken().getImageUrl())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  boolean isFreeSquare() {
+    System.out.println("Implement me! - isFreeSquare()");
+    
+    return false;
+  }
+  
+  boolean setLocalWin() {
+    System.out.println("Implement me! - setLocalWin()");
+    
+    return false;
+  }
+  
+  boolean setLocalLoss() {
+    System.out.println("Implement me! - setLocalLoss()");
+    
+    return false;
+  }
+
+  boolean setLocalDraw() {
+    System.out.println("Implement me! - setLocalDraw()");
+
+    return false;
+  }
+  
+  boolean localStarts() {
+     System.out.println("Implement me! - localStarts()");
+    
+    return false;
+  }
+  
+  void updateStats() {
+    System.out.println("Implement me! - updateStats()");
+  }
+  
+  public void actionPerformed(ActionEvent e) {
+    Object source = e.getSource();
+    
+    if (source instanceof Square) {
+      Square sqr = (Square) source;
+      
+      if (getSessionInGameTurn() == SessionInGameTurn.Local) {
+        if (sqr.getClickablility() == Square.Clickablility.Clickable) {
+          sqr.setToken(getLocalPlayer().getToken());
+          sqr.click();
+          localActed();
+          if (!getGameOver()) unlockSquares();
+        }
+      } else if (getSessionInGameTurn() == SessionInGameTurn.Remote) {
+        if (sqr.getClickablility() == Square.Clickablility.Clickable) {
+          sqr.setToken(getRemotePlayer().getToken());
+          sqr.click();
+          remoteActed();
+        }
+      }
+    } else if (source instanceof JButton) {
+      JButton btn = (JButton) source; 
+      if (btn == control1) {
+      } else if (btn == control2) {
+        startGame();
+      } else if (btn == quitButton) {
+        System.exit(0);
+      }
+    }
+  }
+}
+
+class Square {
+  public static String getUnclickableImageURL() {
+    return "data\\unclickable.png";
+  }
+  
+  public static String getClickableImageURL() {
+    return "data\\clickable.png";
+  }
+  
+  
+  int posX;
+  int posY;
+  * -> 0..1 Token;
+  
+  Clickablility {
+    Clickable { 
+      entry/{setClickableImage();}
+      click -> Clicked; 
+      lock -> NotClickable; 
+    }
+    NotClickable { 
+      entry/{setNotClickableImage();}
+      reset -> Clickable; 
+      unlock -> Clickable;
+    }
+    Clicked { 
+      entry/{setClickedImage();}
+      reset -> Clickable; 
+    }
+  }
+  
+  boolean changeImage(String imageURL){
+     System.out.println("Implement me!");
+    
+    return false;
+  }
+  
+  boolean setClickedImage(){
+     System.out.println("Implement me!");
+    
+    return false;
+  }
+  
+  boolean setClickableImage(){
+     System.out.println("Implement me!");
+    
+    return false;
+  }
+  
+  boolean setNotClickableImage(){
+     System.out.println("Implement me!");
+    
+    return false;
+  }
+}
+
+class Token {
+  imageUrl;
+  0..1 -- 1 Player;
+  
+  public static final String NOUGHT = "data\\nought.png";
+  public static final String CROSS = "data\\cross.png";
+  
+  
+}
+
+class Player {
+  name;
+  
+  int playerId;
+  int wins;
+  int losses;
+  int draws;
+  lazy expLvl;
+  lazy boolean isReady;
+  
+  
+  void determineExperienceLevel() {
+    double ratio;
+    if (losses + draws != 0) ratio = (double) wins/(losses + draws);
+    else ratio = 0.0;
+    
+    if (ratio <= 1.0) {
+      setExpLvl("Beginner");
+    } else if (ratio > 1.0 && ratio <= 3.0) {
+      setExpLvl("Intermediate");
+    } else {
+      setExpLvl("Expert");
+    }
+  }
+}
+
+class Action {
+  abstract;
+  Time time;
+  
+  * <- 0..1 Player;
+}
+
+class MoveAction {
+  isA Action;
+  int x;
+  int y;
+}
+
+class MessageAction {
+  isA Action;
+  message;
+}
