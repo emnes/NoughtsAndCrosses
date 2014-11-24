@@ -20,7 +20,6 @@ public class ServerNaCG extends AbstractServer {
 	// Default port to listen on.
 	final public static int DEFAULT_PORT = 5555;
 	public static PrintStream out = System.out;
-	//final public static String LoginID = "LoginID";
 	
 	// ----- INSTANCE VARIABLES -----\\
 
